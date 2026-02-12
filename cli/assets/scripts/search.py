@@ -17,7 +17,7 @@ Persistence (Master + Overrides pattern):
 import argparse
 import sys
 import io
-from core import CSV_CONFIG, AVAILABLE_STACKS, MAX_RESULTS, search, search_stack
+from core import CSV_CONFIG, AVAILABLE_STACKS, MAX_RESULTS, search, search_stack, detect_stack_from_project
 from design_system import generate_design_system, persist_design_system
 
 # Force UTF-8 for stdout/stderr to handle emojis on Windows (cp1252 default)
@@ -68,21 +68,33 @@ if __name__ == "__main__":
     parser.add_argument("--persist", action="store_true", help="Save design system to design-system/MASTER.md (creates hierarchical structure)")
     parser.add_argument("--page", type=str, default=None, help="Create page-specific override file in design-system/pages/")
     parser.add_argument("--output-dir", "-o", type=str, default=None, help="Output directory for persisted files (default: current directory)")
+    # Stack auto-detection
+    parser.add_argument("--auto-detect", action="store_true", help="Auto-detect stack from package.json in project directory")
+    parser.add_argument("--project-dir", type=str, default=".", help="Project directory for auto-detection (default: current directory)")
 
     args = parser.parse_args()
+
+    # Resolve stack: explicit --stack > --auto-detect > default
+    detected_stack = None
+    if args.stack:
+        detected_stack = args.stack
+    elif args.auto_detect:
+        detected_stack = detect_stack_from_project(args.project_dir)
+        print(f"Auto-detected stack: {detected_stack} (from {args.project_dir}/package.json)")
 
     # Design system takes priority
     if args.design_system:
         result = generate_design_system(
-            args.query, 
-            args.project_name, 
+            args.query,
+            args.project_name,
             args.format,
             persist=args.persist,
             page=args.page,
-            output_dir=args.output_dir
+            output_dir=args.output_dir,
+            stack=detected_stack
         )
         print(result)
-        
+
         # Print persistence confirmation
         if args.persist:
             project_slug = args.project_name.lower().replace(' ', '-') if args.project_name else "default"

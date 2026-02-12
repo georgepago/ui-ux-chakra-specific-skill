@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Antigravity Kit is an AI-powered design intelligence toolkit providing searchable databases of UI styles, color palettes, font pairings, chart types, and UX guidelines. It works as a skill/workflow for AI coding assistants (Claude Code, Windsurf, Cursor, etc.).
+UI/UX Pro Max (Chakra UI Fork) is an AI-powered design intelligence toolkit with Chakra UI as the primary stack. Provides searchable databases of UI styles, color palettes, font pairings, chart types, and UX guidelines. Auto-detects your project's framework from package.json. Works as a skill/workflow for AI coding assistants (Claude Code, Windsurf, Cursor, etc.).
 
 ## Search Command
 
@@ -25,7 +25,13 @@ python3 src/ui-ux-pro-max/scripts/search.py "<query>" --domain <domain> [-n <max
 ```bash
 python3 src/ui-ux-pro-max/scripts/search.py "<query>" --stack <stack>
 ```
-Available stacks: `html-tailwind` (default), `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, `nuxt-ui`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose`
+Available stacks: `chakra-ui`, `html-tailwind`, `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, `nuxt-ui`, `svelte`, `shadcn`, `swiftui`, `react-native`, `flutter`, `jetpack-compose`
+
+**Auto-detect stack:**
+```bash
+python3 src/ui-ux-pro-max/scripts/search.py "<query>" --auto-detect [--project-dir /path/to/project]
+```
+Reads `package.json` and selects the best-matching stack automatically. Chakra UI projects are detected from `@chakra-ui/react`.
 
 ## Architecture
 

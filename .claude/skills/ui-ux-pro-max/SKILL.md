@@ -1,11 +1,11 @@
 ---
 name: ui-ux-pro-max
-description: "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, mobile app, .html, .tsx, .vue, .svelte. Elements: button, modal, navbar, sidebar, card, table, form, chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, flat design. Topics: color palette, accessibility, animation, layout, typography, font pairing, spacing, hover, shadow, gradient. Integrations: shadcn/ui MCP for component search and examples."
+description: "UI/UX design intelligence with Chakra UI focus. 50 styles, 21 palettes, 50 font pairings, 20 charts, 10 stacks (Chakra UI, React, Next.js, Vue, Svelte, Tailwind, shadcn/ui, Astro, Nuxt, NuxtUI). Auto-detects your framework from package.json. Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, mobile app, .html, .tsx, .vue, .svelte. Elements: button, modal, navbar, sidebar, card, table, form, chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, flat design. Topics: color palette, accessibility, animation, layout, typography, font pairing, spacing, hover, shadow, gradient."
 ---
 
 # UI/UX Pro Max - Design Intelligence
 
-Comprehensive design guide for web and mobile applications. Contains 50+ styles, 97 color palettes, 57 font pairings, 99 UX guidelines, and 25 chart types across 9 technology stacks. Searchable database with priority-based recommendations.
+Comprehensive design guide for web applications with Chakra UI as the primary stack. Contains 50+ styles, 97 color palettes, 57 font pairings, 99 UX guidelines, and 25 chart types across 10 web stacks. Auto-detects your project's framework from package.json. Searchable database with priority-based recommendations.
 
 ## When to Apply
 
@@ -128,7 +128,7 @@ Extract key information from user request:
 - **Product type**: SaaS, e-commerce, portfolio, dashboard, landing page, etc.
 - **Style keywords**: minimal, playful, professional, elegant, dark mode, etc.
 - **Industry**: healthcare, fintech, gaming, education, etc.
-- **Stack**: React, Vue, Next.js, or default to `html-tailwind`
+- **Stack**: Auto-detect from package.json (Chakra UI, React, Next.js, Vue, Svelte, Tailwind), or ask user if unclear
 
 ### Step 2: Generate Design System (REQUIRED)
 
@@ -201,15 +201,19 @@ python3 skills/ui-ux-pro-max/scripts/search.py "<keyword>" --domain <domain> [-n
 | Alternative fonts | `typography` | `--domain typography "elegant luxury"` |
 | Landing structure | `landing` | `--domain landing "hero social-proof"` |
 
-### Step 4: Stack Guidelines (Default: html-tailwind)
+### Step 4: Stack Guidelines (Auto-Detect or Specify)
 
-Get implementation-specific best practices. If user doesn't specify a stack, **default to `html-tailwind`**.
+Get implementation-specific best practices. **Auto-detect** from the project's package.json, or specify manually.
 
 ```bash
-python3 skills/ui-ux-pro-max/scripts/search.py "<keyword>" --stack html-tailwind
+# Auto-detect stack from project
+python3 skills/ui-ux-pro-max/scripts/search.py "<keyword>" --auto-detect
+
+# Or specify explicitly
+python3 skills/ui-ux-pro-max/scripts/search.py "<keyword>" --stack chakra-ui
 ```
 
-Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose`
+Available stacks: `chakra-ui`, `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `astro`, `nuxtjs`, `nuxt-ui`, `shadcn`
 
 ---
 
@@ -234,16 +238,16 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`
 
 | Stack | Focus |
 |-------|-------|
-| `html-tailwind` | Tailwind utilities, responsive, a11y (DEFAULT) |
+| `chakra-ui` | Theme system, component props, colorScheme, dark mode, layout primitives |
+| `html-tailwind` | Tailwind utilities, responsive, a11y |
 | `react` | State, hooks, performance, patterns |
 | `nextjs` | SSR, routing, images, API routes |
 | `vue` | Composition API, Pinia, Vue Router |
 | `svelte` | Runes, stores, SvelteKit |
-| `swiftui` | Views, State, Navigation, Animation |
-| `react-native` | Components, Navigation, Lists |
-| `flutter` | Widgets, State, Layout, Theming |
+| `astro` | Islands, content collections, SSG |
+| `nuxtjs` | Nuxt 3, composables, Nitro |
+| `nuxt-ui` | Nuxt UI components, theming |
 | `shadcn` | shadcn/ui components, theming, forms, patterns |
-| `jetpack-compose` | Composables, Modifiers, State Hoisting, Recomposition |
 
 ---
 
@@ -327,26 +331,26 @@ These are frequently overlooked issues that make UI look unprofessional:
 
 | Rule | Do | Don't |
 |------|----|----- |
-| **Cursor pointer** | Add `cursor-pointer` to all clickable/hoverable cards | Leave default cursor on interactive elements |
-| **Hover feedback** | Provide visual feedback (color, shadow, border) | No indication element is interactive |
-| **Smooth transitions** | Use `transition-colors duration-200` | Instant state changes or too slow (>500ms) |
+| **Cursor pointer** | Add cursor pointer to all clickable/hoverable cards (Chakra: `cursor='pointer'`) | Leave default cursor on interactive elements |
+| **Hover feedback** | Provide visual feedback via framework pseudo props (Chakra: `_hover={{ }}`) | No indication element is interactive |
+| **Smooth transitions** | Use `transition='all 200ms ease'` or framework equivalent | Instant state changes or too slow (>500ms) |
 
 ### Light/Dark Mode Contrast
 
 | Rule | Do | Don't |
 |------|----|----- |
-| **Glass card light mode** | Use `bg-white/80` or higher opacity | Use `bg-white/10` (too transparent) |
-| **Text contrast light** | Use `#0F172A` (slate-900) for text | Use `#94A3B8` (slate-400) for body text |
-| **Muted text light** | Use `#475569` (slate-600) minimum | Use gray-400 or lighter |
-| **Border visibility** | Use `border-gray-200` in light mode | Use `border-white/10` (invisible) |
+| **Mode-aware backgrounds** | Use `useColorModeValue('white', 'gray.800')` or framework equivalent | Hardcode single-mode colors |
+| **Text contrast light** | Use dark text on light backgrounds (4.5:1 minimum ratio) | Use gray-400 or lighter for body text |
+| **Muted text** | Use `color='gray.600'` minimum for secondary text | Use colors below 4.5:1 contrast ratio |
+| **Border visibility** | Use visible borders in both modes (Chakra: `borderColor='gray.200'`) | Use invisible or near-invisible borders |
 
 ### Layout & Spacing
 
 | Rule | Do | Don't |
 |------|----|----- |
-| **Floating navbar** | Add `top-4 left-4 right-4` spacing | Stick navbar to `top-0 left-0 right-0` |
-| **Content padding** | Account for fixed navbar height | Let content hide behind fixed elements |
-| **Consistent max-width** | Use same `max-w-6xl` or `max-w-7xl` | Mix different container widths |
+| **Floating navbar** | Add spacing from viewport edges for floating nav | Pin navbar flush to edges with no breathing room |
+| **Content padding** | Account for fixed navbar height with padding-top | Let content hide behind fixed elements |
+| **Consistent max-width** | Use `Container maxW='container.xl'` or equivalent consistently | Mix different container widths across pages |
 
 ---
 
@@ -355,32 +359,37 @@ These are frequently overlooked issues that make UI look unprofessional:
 Before delivering UI code, verify these items:
 
 ### Visual Quality
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] Brand logos are correct (verified from Simple Icons)
+- [ ] No emojis used as icons (use SVG instead — Heroicons/Lucide)
+- [ ] Brand logos verified from Simple Icons
 - [ ] Hover states don't cause layout shift
-- [ ] Use theme colors directly (bg-primary) not var() wrapper
+- [ ] Colors come from theme tokens, not hardcoded hex values
 
 ### Interaction
-- [ ] All clickable elements have `cursor-pointer`
-- [ ] Hover states provide clear visual feedback
-- [ ] Transitions are smooth (150-300ms)
-- [ ] Focus states visible for keyboard navigation
+- [ ] All clickable elements have cursor pointer (Chakra: `cursor='pointer'`)
+- [ ] Hover/focus states via pseudo props (Chakra: `_hover`, `_focus`)
+- [ ] Transitions smooth (150-300ms) — use `transition` prop
+- [ ] Focus rings visible for keyboard navigation
 
 ### Light/Dark Mode
-- [ ] Light mode text has sufficient contrast (4.5:1 minimum)
-- [ ] Glass/transparent elements visible in light mode
+- [ ] Text contrast 4.5:1 minimum in both modes
+- [ ] Mode-aware values used (Chakra: `useColorModeValue`)
 - [ ] Borders visible in both modes
 - [ ] Test both modes before delivery
+
+### Theme & Framework
+- [ ] `extendTheme()` includes all custom colors/spacing/typography (Chakra)
+- [ ] `colorScheme` props on interactive components (Chakra)
+- [ ] Component variants defined in theme, not inline (Chakra)
+- [ ] `ChakraProvider` wraps app with custom theme
 
 ### Layout
 - [ ] Floating elements have proper spacing from edges
 - [ ] No content hidden behind fixed navbars
-- [ ] Responsive at 375px, 768px, 1024px, 1440px
+- [ ] Responsive at 375px, 768px, 1024px, 1440px (use responsive array/object syntax)
 - [ ] No horizontal scroll on mobile
 
 ### Accessibility
 - [ ] All images have alt text
-- [ ] Form inputs have labels
-- [ ] Color is not the only indicator
+- [ ] Form inputs wrapped in `FormControl` with `FormLabel` (Chakra)
+- [ ] `aria-label` on all icon-only buttons (Chakra: `IconButton`)
 - [ ] `prefers-reduced-motion` respected

@@ -459,8 +459,9 @@ def format_markdown(design_system: dict) -> str:
 
 
 # ============ MAIN ENTRY POINT ============
-def generate_design_system(query: str, project_name: str = None, output_format: str = "ascii", 
-                           persist: bool = False, page: str = None, output_dir: str = None) -> str:
+def generate_design_system(query: str, project_name: str = None, output_format: str = "ascii",
+                           persist: bool = False, page: str = None, output_dir: str = None,
+                           stack: str = None) -> str:
     """
     Main entry point for design system generation.
 
@@ -471,16 +472,17 @@ def generate_design_system(query: str, project_name: str = None, output_format: 
         persist: If True, save design system to design-system/ folder
         page: Optional page name for page-specific override file
         output_dir: Optional output directory (defaults to current working directory)
+        stack: Target framework stack (e.g., "chakra-ui", "html-tailwind")
 
     Returns:
         Formatted design system string
     """
     generator = DesignSystemGenerator()
     design_system = generator.generate(query, project_name)
-    
+
     # Persist to files if requested
     if persist:
-        persist_design_system(design_system, page, output_dir, query)
+        persist_design_system(design_system, page, output_dir, query, stack=stack)
 
     if output_format == "markdown":
         return format_markdown(design_system)
@@ -488,16 +490,17 @@ def generate_design_system(query: str, project_name: str = None, output_format: 
 
 
 # ============ PERSISTENCE FUNCTIONS ============
-def persist_design_system(design_system: dict, page: str = None, output_dir: str = None, page_query: str = None) -> dict:
+def persist_design_system(design_system: dict, page: str = None, output_dir: str = None, page_query: str = None, stack: str = None) -> dict:
     """
     Persist design system to design-system/<project>/ folder using Master + Overrides pattern.
-    
+
     Args:
         design_system: The generated design system dictionary
         page: Optional page name for page-specific override file
         output_dir: Optional output directory (defaults to current working directory)
         page_query: Optional query string for intelligent page override generation
-    
+        stack: Target framework stack for component spec output
+
     Returns:
         dict with created file paths and status
     """
@@ -519,7 +522,7 @@ def persist_design_system(design_system: dict, page: str = None, output_dir: str
     master_file = design_system_dir / "MASTER.md"
     
     # Generate and write MASTER.md
-    master_content = format_master_md(design_system)
+    master_content = format_master_md(design_system, stack=stack)
     with open(master_file, 'w', encoding='utf-8') as f:
         f.write(master_content)
     created_files.append(str(master_file))
@@ -539,8 +542,8 @@ def persist_design_system(design_system: dict, page: str = None, output_dir: str
     }
 
 
-def format_master_md(design_system: dict) -> str:
-    """Format design system as MASTER.md with hierarchical override logic."""
+def format_master_md(design_system: dict, stack: str = None) -> str:
+    """Format design system as MASTER.md with hierarchical override logic and stack-specific components."""
     project = design_system.get("project_name", "PROJECT")
     pattern = design_system.get("pattern", {})
     style = design_system.get("style", {})
@@ -630,105 +633,16 @@ def format_master_md(design_system: dict) -> str:
     lines.append("| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |")
     lines.append("")
     
-    # Component Specs section
+    # Component Specs section — stack-specific
     lines.append("---")
     lines.append("")
     lines.append("## Component Specs")
     lines.append("")
-    
-    # Buttons
-    lines.append("### Buttons")
-    lines.append("")
-    lines.append("```css")
-    lines.append("/* Primary Button */")
-    lines.append(".btn-primary {")
-    lines.append(f"  background: {colors.get('cta', '#F97316')};")
-    lines.append("  color: white;")
-    lines.append("  padding: 12px 24px;")
-    lines.append("  border-radius: 8px;")
-    lines.append("  font-weight: 600;")
-    lines.append("  transition: all 200ms ease;")
-    lines.append("  cursor: pointer;")
-    lines.append("}")
-    lines.append("")
-    lines.append(".btn-primary:hover {")
-    lines.append("  opacity: 0.9;")
-    lines.append("  transform: translateY(-1px);")
-    lines.append("}")
-    lines.append("")
-    lines.append("/* Secondary Button */")
-    lines.append(".btn-secondary {")
-    lines.append(f"  background: transparent;")
-    lines.append(f"  color: {colors.get('primary', '#2563EB')};")
-    lines.append(f"  border: 2px solid {colors.get('primary', '#2563EB')};")
-    lines.append("  padding: 12px 24px;")
-    lines.append("  border-radius: 8px;")
-    lines.append("  font-weight: 600;")
-    lines.append("  transition: all 200ms ease;")
-    lines.append("  cursor: pointer;")
-    lines.append("}")
-    lines.append("```")
-    lines.append("")
-    
-    # Cards
-    lines.append("### Cards")
-    lines.append("")
-    lines.append("```css")
-    lines.append(".card {")
-    lines.append(f"  background: {colors.get('background', '#FFFFFF')};")
-    lines.append("  border-radius: 12px;")
-    lines.append("  padding: 24px;")
-    lines.append("  box-shadow: var(--shadow-md);")
-    lines.append("  transition: all 200ms ease;")
-    lines.append("  cursor: pointer;")
-    lines.append("}")
-    lines.append("")
-    lines.append(".card:hover {")
-    lines.append("  box-shadow: var(--shadow-lg);")
-    lines.append("  transform: translateY(-2px);")
-    lines.append("}")
-    lines.append("```")
-    lines.append("")
-    
-    # Inputs
-    lines.append("### Inputs")
-    lines.append("")
-    lines.append("```css")
-    lines.append(".input {")
-    lines.append("  padding: 12px 16px;")
-    lines.append("  border: 1px solid #E2E8F0;")
-    lines.append("  border-radius: 8px;")
-    lines.append("  font-size: 16px;")
-    lines.append("  transition: border-color 200ms ease;")
-    lines.append("}")
-    lines.append("")
-    lines.append(".input:focus {")
-    lines.append(f"  border-color: {colors.get('primary', '#2563EB')};")
-    lines.append("  outline: none;")
-    lines.append(f"  box-shadow: 0 0 0 3px {colors.get('primary', '#2563EB')}20;")
-    lines.append("}")
-    lines.append("```")
-    lines.append("")
-    
-    # Modals
-    lines.append("### Modals")
-    lines.append("")
-    lines.append("```css")
-    lines.append(".modal-overlay {")
-    lines.append("  background: rgba(0, 0, 0, 0.5);")
-    lines.append("  backdrop-filter: blur(4px);")
-    lines.append("}")
-    lines.append("")
-    lines.append(".modal {")
-    lines.append("  background: white;")
-    lines.append("  border-radius: 16px;")
-    lines.append("  padding: 32px;")
-    lines.append("  box-shadow: var(--shadow-xl);")
-    lines.append("  max-width: 500px;")
-    lines.append("  width: 90%;")
-    lines.append("}")
-    lines.append("```")
-    lines.append("")
+
+    if stack == "chakra-ui":
+        lines.extend(_generate_chakra_components(colors))
+    else:
+        lines.extend(_generate_css_components(colors))
     
     # Style section
     lines.append("---")
@@ -800,6 +714,287 @@ def format_master_md(design_system: dict) -> str:
     lines.append("")
     
     return "\n".join(lines)
+
+
+def _generate_css_components(colors: dict) -> list:
+    """Generate vanilla CSS component specifications (default)."""
+    lines = []
+
+    # Buttons
+    lines.append("### Buttons")
+    lines.append("")
+    lines.append("```css")
+    lines.append("/* Primary Button */")
+    lines.append(".btn-primary {")
+    lines.append(f"  background: {colors.get('cta', '#F97316')};")
+    lines.append("  color: white;")
+    lines.append("  padding: 12px 24px;")
+    lines.append("  border-radius: 8px;")
+    lines.append("  font-weight: 600;")
+    lines.append("  transition: all 200ms ease;")
+    lines.append("  cursor: pointer;")
+    lines.append("}")
+    lines.append("")
+    lines.append(".btn-primary:hover {")
+    lines.append("  opacity: 0.9;")
+    lines.append("  transform: translateY(-1px);")
+    lines.append("}")
+    lines.append("")
+    lines.append("/* Secondary Button */")
+    lines.append(".btn-secondary {")
+    lines.append("  background: transparent;")
+    lines.append(f"  color: {colors.get('primary', '#2563EB')};")
+    lines.append(f"  border: 2px solid {colors.get('primary', '#2563EB')};")
+    lines.append("  padding: 12px 24px;")
+    lines.append("  border-radius: 8px;")
+    lines.append("  font-weight: 600;")
+    lines.append("  transition: all 200ms ease;")
+    lines.append("  cursor: pointer;")
+    lines.append("}")
+    lines.append("```")
+    lines.append("")
+
+    # Cards
+    lines.append("### Cards")
+    lines.append("")
+    lines.append("```css")
+    lines.append(".card {")
+    lines.append(f"  background: {colors.get('background', '#FFFFFF')};")
+    lines.append("  border-radius: 12px;")
+    lines.append("  padding: 24px;")
+    lines.append("  box-shadow: var(--shadow-md);")
+    lines.append("  transition: all 200ms ease;")
+    lines.append("  cursor: pointer;")
+    lines.append("}")
+    lines.append("")
+    lines.append(".card:hover {")
+    lines.append("  box-shadow: var(--shadow-lg);")
+    lines.append("  transform: translateY(-2px);")
+    lines.append("}")
+    lines.append("```")
+    lines.append("")
+
+    # Inputs
+    lines.append("### Inputs")
+    lines.append("")
+    lines.append("```css")
+    lines.append(".input {")
+    lines.append("  padding: 12px 16px;")
+    lines.append("  border: 1px solid #E2E8F0;")
+    lines.append("  border-radius: 8px;")
+    lines.append("  font-size: 16px;")
+    lines.append("  transition: border-color 200ms ease;")
+    lines.append("}")
+    lines.append("")
+    lines.append(".input:focus {")
+    lines.append(f"  border-color: {colors.get('primary', '#2563EB')};")
+    lines.append("  outline: none;")
+    lines.append(f"  box-shadow: 0 0 0 3px {colors.get('primary', '#2563EB')}20;")
+    lines.append("}")
+    lines.append("```")
+    lines.append("")
+
+    # Modals
+    lines.append("### Modals")
+    lines.append("")
+    lines.append("```css")
+    lines.append(".modal-overlay {")
+    lines.append("  background: rgba(0, 0, 0, 0.5);")
+    lines.append("  backdrop-filter: blur(4px);")
+    lines.append("}")
+    lines.append("")
+    lines.append(".modal {")
+    lines.append("  background: white;")
+    lines.append("  border-radius: 16px;")
+    lines.append("  padding: 32px;")
+    lines.append("  box-shadow: var(--shadow-xl);")
+    lines.append("  max-width: 500px;")
+    lines.append("  width: 90%;")
+    lines.append("}")
+    lines.append("```")
+    lines.append("")
+
+    return lines
+
+
+def _generate_chakra_components(colors: dict) -> list:
+    """Generate Chakra UI component specifications with extendTheme and JSX examples."""
+    primary = colors.get('primary', '#2563EB')
+    secondary = colors.get('secondary', '#3B82F6')
+    cta = colors.get('cta', '#F97316')
+    bg = colors.get('background', '#F8FAFC')
+    text = colors.get('text', '#1E293B')
+
+    lines = []
+
+    # Theme Config
+    lines.append("### Theme Configuration")
+    lines.append("")
+    lines.append("```typescript")
+    lines.append("import { extendTheme } from '@chakra-ui/react';")
+    lines.append("")
+    lines.append("const theme = extendTheme({")
+    lines.append("  config: {")
+    lines.append("    initialColorMode: 'light',")
+    lines.append("    useSystemColorMode: true,")
+    lines.append("  },")
+    lines.append("  colors: {")
+    lines.append("    brand: {")
+    lines.append(f"      50: '{primary}10',")
+    lines.append(f"      100: '{primary}20',")
+    lines.append(f"      200: '{primary}40',")
+    lines.append(f"      300: '{primary}60',")
+    lines.append(f"      400: '{primary}80',")
+    lines.append(f"      500: '{primary}',")
+    lines.append(f"      600: '{secondary}',")
+    lines.append(f"      700: '{primary}',")
+    lines.append(f"      800: '{text}',")
+    lines.append(f"      900: '{text}',")
+    lines.append("    },")
+    lines.append("    cta: {")
+    lines.append(f"      500: '{cta}',")
+    lines.append(f"      600: '{cta}',")
+    lines.append("    },")
+    lines.append("  },")
+    lines.append("  styles: {")
+    lines.append("    global: {")
+    lines.append("      body: {")
+    lines.append(f"        bg: '{bg}',")
+    lines.append(f"        color: '{text}',")
+    lines.append("      },")
+    lines.append("    },")
+    lines.append("  },")
+    lines.append("});")
+    lines.append("```")
+    lines.append("")
+
+    # Buttons
+    lines.append("### Buttons")
+    lines.append("")
+    lines.append("**Theme extension:**")
+    lines.append("```typescript")
+    lines.append("components: {")
+    lines.append("  Button: {")
+    lines.append("    baseStyle: {")
+    lines.append("      fontWeight: 600,")
+    lines.append("      borderRadius: 'md',")
+    lines.append("      transition: 'all 200ms ease',")
+    lines.append("      _hover: { transform: 'translateY(-1px)' },")
+    lines.append("      _focus: { boxShadow: 'outline' },")
+    lines.append("    },")
+    lines.append("    variants: {")
+    lines.append("      primary: {")
+    lines.append(f"        bg: '{cta}',")
+    lines.append("        color: 'white',")
+    lines.append("        _hover: { opacity: 0.9 },")
+    lines.append("      },")
+    lines.append("      secondary: {")
+    lines.append("        bg: 'transparent',")
+    lines.append(f"        color: '{primary}',")
+    lines.append(f"        border: '2px solid {primary}',")
+    lines.append("        _hover: { bg: 'gray.50' },")
+    lines.append("      },")
+    lines.append("    },")
+    lines.append("    sizes: {")
+    lines.append("      lg: { px: 6, py: 3, fontSize: 'md' },")
+    lines.append("      md: { px: 4, py: 2.5, fontSize: 'sm' },")
+    lines.append("      sm: { px: 3, py: 1.5, fontSize: 'xs' },")
+    lines.append("    },")
+    lines.append("  },")
+    lines.append("}")
+    lines.append("```")
+    lines.append("")
+    lines.append("**Usage:**")
+    lines.append("```jsx")
+    lines.append("<Button variant='primary' size='lg'>Get Started</Button>")
+    lines.append("<Button variant='secondary' size='md'>Learn More</Button>")
+    lines.append("<Button colorScheme='brand' isLoading={isSubmitting}>Submit</Button>")
+    lines.append("```")
+    lines.append("")
+
+    # Cards
+    lines.append("### Cards")
+    lines.append("")
+    lines.append("```jsx")
+    lines.append("import { Box, useColorModeValue } from '@chakra-ui/react';")
+    lines.append("")
+    lines.append("const Card = ({ children, isInteractive, ...props }) => (")
+    lines.append("  <Box")
+    lines.append("    bg={useColorModeValue('white', 'gray.800')}")
+    lines.append("    borderRadius='xl'")
+    lines.append("    p={6}")
+    lines.append("    boxShadow='md'")
+    lines.append("    transition='all 200ms ease'")
+    lines.append("    {...(isInteractive && {")
+    lines.append("      cursor: 'pointer',")
+    lines.append("      _hover: { boxShadow: 'lg', transform: 'translateY(-2px)' },")
+    lines.append("    })}")
+    lines.append("    {...props}")
+    lines.append("  >")
+    lines.append("    {children}")
+    lines.append("  </Box>")
+    lines.append(");")
+    lines.append("```")
+    lines.append("")
+
+    # Inputs
+    lines.append("### Inputs")
+    lines.append("")
+    lines.append("**Theme extension:**")
+    lines.append("```typescript")
+    lines.append("components: {")
+    lines.append("  Input: {")
+    lines.append("    variants: {")
+    lines.append("      outline: {")
+    lines.append("        field: {")
+    lines.append("          borderColor: 'gray.300',")
+    lines.append("          fontSize: 'md',")
+    lines.append("          _focus: {")
+    lines.append(f"            borderColor: '{primary}',")
+    lines.append(f"            boxShadow: '0 0 0 3px {primary}20',")
+    lines.append("          },")
+    lines.append("        },")
+    lines.append("      },")
+    lines.append("    },")
+    lines.append("  },")
+    lines.append("}")
+    lines.append("```")
+    lines.append("")
+    lines.append("**Usage:**")
+    lines.append("```jsx")
+    lines.append("<FormControl isInvalid={!!errors.email}>")
+    lines.append("  <FormLabel>Email</FormLabel>")
+    lines.append("  <Input type='email' placeholder='you@example.com' />")
+    lines.append("  <FormErrorMessage>{errors.email}</FormErrorMessage>")
+    lines.append("</FormControl>")
+    lines.append("```")
+    lines.append("")
+
+    # Modals
+    lines.append("### Modals")
+    lines.append("")
+    lines.append("```jsx")
+    lines.append("import {")
+    lines.append("  Modal, ModalOverlay, ModalContent, ModalHeader,")
+    lines.append("  ModalBody, ModalFooter, ModalCloseButton, Button,")
+    lines.append("} from '@chakra-ui/react';")
+    lines.append("")
+    lines.append("<Modal isOpen={isOpen} onClose={onClose} returnFocusOnClose>")
+    lines.append("  <ModalOverlay backdropFilter='blur(4px)' />")
+    lines.append("  <ModalContent borderRadius='2xl' boxShadow='xl' maxW='500px'>")
+    lines.append("    <ModalHeader>Title</ModalHeader>")
+    lines.append("    <ModalCloseButton />")
+    lines.append("    <ModalBody pb={6}>Content here</ModalBody>")
+    lines.append("    <ModalFooter>")
+    lines.append("      <Button variant='secondary' mr={3} onClick={onClose}>Cancel</Button>")
+    lines.append("      <Button variant='primary'>Confirm</Button>")
+    lines.append("    </ModalFooter>")
+    lines.append("  </ModalContent>")
+    lines.append("</Modal>")
+    lines.append("```")
+    lines.append("")
+
+    return lines
 
 
 def format_page_override_md(design_system: dict, page_name: str, page_query: str = None) -> str:
