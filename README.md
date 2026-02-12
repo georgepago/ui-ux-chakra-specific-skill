@@ -153,7 +153,7 @@ Each rule includes:
 - **96 Color Palettes** - Industry-specific palettes for SaaS, E-commerce, Healthcare, Fintech, Beauty, etc.
 - **57 Font Pairings** - Curated typography combinations with Google Fonts imports
 - **25 Chart Types** - Recommendations for dashboards and analytics
-- **13 Tech Stacks** - React, Next.js, Astro, Vue, Nuxt.js, Nuxt UI, Svelte, SwiftUI, React Native, Flutter, HTML+Tailwind, shadcn/ui, Jetpack Compose
+- **14 Tech Stacks** - Chakra UI (primary), React, Next.js, Astro, Vue, Nuxt.js, Nuxt UI, Svelte, HTML+Tailwind, shadcn/ui, SwiftUI, React Native, Flutter, Jetpack Compose — auto-detects from package.json
 - **99 UX Guidelines** - Best practices, anti-patterns, and accessibility rules
 - **100 Reasoning Rules** - Industry-specific design system generation (NEW in v2.0)
 
@@ -367,7 +367,8 @@ The skill provides stack-specific guidelines for:
 
 | Category | Stacks |
 |----------|--------|
-| **Web (HTML)** | HTML + Tailwind (default) |
+| **Chakra UI** | Chakra UI (primary — auto-detected from `@chakra-ui/react`) |
+| **Web (HTML)** | HTML + Tailwind |
 | **React Ecosystem** | React, Next.js, shadcn/ui |
 | **Vue Ecosystem** | Vue, Nuxt.js, Nuxt UI |
 | **Other Web** | Svelte, Astro |
@@ -375,7 +376,7 @@ The skill provides stack-specific guidelines for:
 | **Android** | Jetpack Compose |
 | **Cross-Platform** | React Native, Flutter |
 
-Just mention your preferred stack in the prompt, or let it default to HTML + Tailwind.
+The skill auto-detects your stack from `package.json`. You can also specify explicitly with `--stack chakra-ui`.
 
 ## Design System Command (Advanced)
 
@@ -395,7 +396,11 @@ python3 .claude/skills/ui-ux-pro-max/scripts/search.py "glassmorphism" --domain 
 python3 .claude/skills/ui-ux-pro-max/scripts/search.py "elegant serif" --domain typography
 python3 .claude/skills/ui-ux-pro-max/scripts/search.py "dashboard" --domain chart
 
+# Auto-detect stack from package.json
+python3 .claude/skills/ui-ux-pro-max/scripts/search.py "form validation" --auto-detect
+
 # Stack-specific guidelines
+python3 .claude/skills/ui-ux-pro-max/scripts/search.py "theme components" --stack chakra-ui
 python3 .claude/skills/ui-ux-pro-max/scripts/search.py "form validation" --stack react
 python3 .claude/skills/ui-ux-pro-max/scripts/search.py "responsive layout" --stack html-tailwind
 ```

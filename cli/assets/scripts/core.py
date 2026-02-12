@@ -5,6 +5,7 @@ UI/UX Pro Max Core - BM25 search engine for UI/UX style guides
 """
 
 import csv
+import json
 import re
 from pathlib import Path
 from math import log
@@ -48,7 +49,7 @@ CSV_CONFIG = {
     "typography": {
         "file": "typography.csv",
         "search_cols": ["Font Pairing Name", "Category", "Mood/Style Keywords", "Best For", "Heading Font", "Body Font"],
-        "output_cols": ["Font Pairing Name", "Category", "Heading Font", "Body Font", "Mood/Style Keywords", "Best For", "Google Fonts URL", "CSS Import", "Tailwind Config", "Notes"]
+        "output_cols": ["Font Pairing Name", "Category", "Heading Font", "Body Font", "Mood/Style Keywords", "Best For", "Google Fonts URL", "CSS Import", "Tailwind Config", "Chakra Config", "Notes"]
     },
     "icons": {
         "file": "icons.csv",
@@ -68,6 +69,7 @@ CSV_CONFIG = {
 }
 
 STACK_CONFIG = {
+    "chakra-ui": {"file": "stacks/chakra-ui.csv"},
     "html-tailwind": {"file": "stacks/html-tailwind.csv"},
     "react": {"file": "stacks/react.csv"},
     "nextjs": {"file": "stacks/nextjs.csv"},
@@ -76,10 +78,10 @@ STACK_CONFIG = {
     "nuxtjs": {"file": "stacks/nuxtjs.csv"},
     "nuxt-ui": {"file": "stacks/nuxt-ui.csv"},
     "svelte": {"file": "stacks/svelte.csv"},
+    "shadcn": {"file": "stacks/shadcn.csv"},
     "swiftui": {"file": "stacks/swiftui.csv"},
     "react-native": {"file": "stacks/react-native.csv"},
     "flutter": {"file": "stacks/flutter.csv"},
-    "shadcn": {"file": "stacks/shadcn.csv"},
     "jetpack-compose": {"file": "stacks/jetpack-compose.csv"}
 }
 
@@ -196,7 +198,7 @@ def detect_domain(query):
         "chart": ["chart", "graph", "visualization", "trend", "bar", "pie", "scatter", "heatmap", "funnel"],
         "landing": ["landing", "page", "cta", "conversion", "hero", "testimonial", "pricing", "section"],
         "product": ["saas", "ecommerce", "e-commerce", "fintech", "healthcare", "gaming", "portfolio", "crypto", "dashboard"],
-        "style": ["style", "design", "ui", "minimalism", "glassmorphism", "neumorphism", "brutalism", "dark mode", "flat", "aurora", "prompt", "css", "implementation", "variable", "checklist", "tailwind"],
+        "style": ["style", "design", "ui", "minimalism", "glassmorphism", "neumorphism", "brutalism", "dark mode", "flat", "aurora", "prompt", "css", "implementation", "variable", "checklist", "tailwind", "chakra"],
         "ux": ["ux", "usability", "accessibility", "wcag", "touch", "scroll", "animation", "keyboard", "navigation", "mobile"],
         "typography": ["font", "typography", "heading", "serif", "sans"],
         "icons": ["icon", "icons", "lucide", "heroicons", "symbol", "glyph", "pictogram", "svg icon"],
@@ -251,3 +253,53 @@ def search_stack(query, stack, max_results=MAX_RESULTS):
         "count": len(results),
         "results": results
     }
+
+
+# ============ STACK AUTO-DETECTION ============
+# Priority order: most specific framework first
+_STACK_DETECTION_RULES = [
+    ("@chakra-ui/react", "chakra-ui"),
+    ("next", "nextjs"),
+    ("nuxt", "nuxtjs"),
+    ("@nuxt/ui", "nuxt-ui"),
+    ("astro", "astro"),
+    ("svelte", "svelte"),
+    ("vue", "vue"),
+    ("@shadcn/ui", "shadcn"),
+    ("tailwindcss", "html-tailwind"),
+    ("react", "react"),
+]
+
+DEFAULT_STACK = "html-tailwind"
+
+
+def detect_stack_from_project(project_dir: str = ".") -> str:
+    """
+    Auto-detect the UI framework stack from package.json dependencies.
+
+    Reads the project's package.json and checks both dependencies and
+    devDependencies against a priority-ordered list of known packages.
+
+    Returns the best-matching stack name, or DEFAULT_STACK as fallback.
+    """
+    try:
+        package_json_path = Path(project_dir) / "package.json"
+        if not package_json_path.exists():
+            return DEFAULT_STACK
+
+        with open(package_json_path, 'r', encoding='utf-8') as f:
+            package_data = json.load(f)
+
+        all_deps = {
+            **package_data.get("dependencies", {}),
+            **package_data.get("devDependencies", {})
+        }
+
+        for package_name, stack_name in _STACK_DETECTION_RULES:
+            if package_name in all_deps:
+                return stack_name
+
+        return DEFAULT_STACK
+
+    except (json.JSONDecodeError, IOError, OSError):
+        return DEFAULT_STACK
